@@ -22,7 +22,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
   properties: {
     accessTier: 'Hot'
-    allowBlobPublicAccess: true // Enable public access for blobs
+    allowBlobPublicAccess: true // Enable blob public access
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
@@ -45,7 +45,7 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
   parent: blobService
   name: containerName
   properties: {
-    publicAccess: 'Blob'
+    publicAccess: 'Blob' // Allow public access at container level
   }
 }
 
