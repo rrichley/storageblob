@@ -1,45 +1,54 @@
-param location string = 'UK West'
-param resourceGroupName string
+@description('The location for all resources.')
+param location string
+
+@description('The name of the storage account.')
 param storageAccountName string
+
+@description('The name of the container to create.')
 param containerName string
+
+@description('The IP address allowed to access the storage account.')
 param allowedIP string
+
+@description('The name of the Log Analytics workspace.')
 param logAnalyticsWorkspaceName string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-    name: storageAccountName
-    location: location
+  name: storageAccountName
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      ipRules: [
+        {
+          ipAddressOrRange: allowedIP
+        }
+      ]
+    }
+  }
+}
+
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  parent: storageAccount
+  name: containerName
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: logAnalyticsWorkspaceName
+  location: location
+  properties: {
     sku: {
-        name: 'Standard_LRS'
+      name: 'PerGB2018'
     }
-    kind: 'StorageV2'
-    properties: {
-        networkAcls: {
-            bypass: 'AzureServices'
-            defaultAction: 'Deny'
-            ipRules: [
-                {
-                    action: 'Allow'
-                    value: allowedIP
-                }
-            ]
-        }
-        accessTier: 'Hot'
-    }
-}
-
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-    name: '${storageAccount.name}/default/${containerName}'
-    properties: {
-        publicAccess: 'None'
-    }
-}
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
-    name: logAnalyticsWorkspaceName
-    location: location
-    properties: {
-        sku: {
-            name: 'PerGB2018'
-        }
-    }
+    retentionInDays: 30
+  }
 }
