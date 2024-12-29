@@ -27,15 +27,21 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       defaultAction: 'Deny'
       ipRules: [
         {
-          ipAddressOrRange: allowedIP
+          value: allowedIP
+          action: 'Allow'
         }
       ]
     }
   }
 }
 
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
   parent: storageAccount
+  name: 'default'
+}
+
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  parent: blobService
   name: containerName
   properties: {
     publicAccess: 'Blob'
