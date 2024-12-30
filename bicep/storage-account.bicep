@@ -4,11 +4,15 @@ param location string
 @description('The name of the storage account.')
 param storageAccountName string
 
-@description('The name of the container to create.')
+@description('The name of the container.')
 param containerName string
 
 @description('The IP address allowed to access the storage account.')
 param allowedIP string
+
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
+  name: resourceGroup().name
+}
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
