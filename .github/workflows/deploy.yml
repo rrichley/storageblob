@@ -1,29 +1,28 @@
 name: Deploy Azure Resources
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy Azure Resources
-        run: |
-          az deployment group create \
-            --resource-group rrblobtest \
-            --template-file bicep/main.bicep \
-            --parameters location="UK South" \
-                        storageAccountName="test123434" \
-                        containerName="images" \
-                        allowedIP="92.16.42.251" \
-                        logAnalyticsWorkspaceName="rrlogtest"
+    - name: Deploy Bicep Template
+      run: |
+        az deployment group create \
+          --resource-group rrblobtest \
+          --template-file bicep/main.bicep \
+          --parameters location="UK South" \
+                      storageAccountName="test123434" \
+                      containerName="images" \
+                      allowedIP="92.16.42.251" \
+                      logAnalyticsWorkspaceName="rrlogtest"
