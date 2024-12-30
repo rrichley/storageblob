@@ -32,6 +32,15 @@ jobs:
                       containerName="images" \
                       allowedIP="92.16.42.251"
 
+                      - name: Ensure Resource Group Exists
+  run: |
+    if ! az group show --name rrblobtest &>/dev/null; then
+      az group create --name rrblobtest --location "UK West"
+    else
+      echo "Resource group rrblobtest already exists."
+    fi
+
+
     - name: Fetch Log Analytics Workspace ID
       id: fetch_workspace_id
       run: |
