@@ -10,10 +10,6 @@ param containerName string
 @description('The IP address allowed to access the storage account.')
 param allowedIP string
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
-  name: resourceGroup().name
-}
-
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
@@ -23,7 +19,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
   properties: {
     accessTier: 'Hot'
-    allowBlobPublicAccess: true
+    allowBlobPublicAccess: true // Enable public access for blob storage
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
