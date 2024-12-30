@@ -1,4 +1,4 @@
-name: Deploy Azure Storage Account and Log Analytics Association
+name: Deploy Azure Resources
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       run: |
         az group create --name rrblobtest --location "UK West"
 
-    - name: Deploy Storage Account and Log Analytics Association
+    - name: Deploy Resources with Bicep
       run: |
         az deployment group create \
           --resource-group rrblobtest \
