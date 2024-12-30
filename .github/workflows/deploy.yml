@@ -1,4 +1,4 @@
-name: Deploy Resources
+name: Deploy Storage with Diagnostics
 
 on:
   push:
@@ -23,7 +23,6 @@ jobs:
             --resource-group "rrblobtest" \
             --template-file bicep/main.bicep \
             --parameters location="UK South" \
-                        resourceGroupName="rrblobtest" \
                         storageAccountName="test123434" \
                         containerName="images" \
                         allowedIP="92.16.42.251" \
