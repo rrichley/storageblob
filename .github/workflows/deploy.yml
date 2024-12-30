@@ -1,9 +1,32 @@
-name: Deploy Storage with Diagnostics
+name: Deploy Storage Account with Log Analytics
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      location:
+        description: "Azure Region"
+        required: true
+        default: "UK South"
+      resourceGroupName:
+        description: "Resource Group Name"
+        required: true
+        default: "rrblobtest"
+      logAnalyticsWorkspaceName:
+        description: "Log Analytics Workspace Name"
+        required: true
+        default: "rrlogtest"
+      storageAccountName:
+        description: "Storage Account Name"
+        required: true
+        default: "test123434"
+      containerName:
+        description: "Blob Container Name"
+        required: true
+        default: "images"
+      allowedIP:
+        description: "Allowed IP Address"
+        required: true
+        default: "92.16.42.251"
 
 jobs:
   deploy:
@@ -12,18 +35,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Login to Azure
+      - name: Log in to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy Resources
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name ${{ github.event.inputs.resourceGroupName }} \
+            --location "${{ github.event.inputs.location }}"
+
+      - name: Deploy Bicep Template
         run: |
           az deployment group create \
-            --resource-group "rrblobtest" \
+            --resource-group ${{ github.event.inputs.resourceGroupName }} \
             --template-file bicep/main.bicep \
-            --parameters location="UK South" \
-                        storageAccountName="test123434" \
-                        containerName="images" \
-                        allowedIP="92.16.42.251" \
-                        logAnalyticsWorkspaceName="rrlogtest"
+            --parameters location="${{ github.event.inputs.location }}" \
+                        logAnalyticsWorkspaceName="${{ github.event.inputs.logAnalyticsWorkspaceName }}" \
+                        storageAccountName="${{ github.event.inputs.storageAccountName }}" \
+                        containerName="${{ github.event.inputs.containerName }}" \
+                        allowedIP="${{ github.event.inputs.allowedIP }}"
