@@ -39,3 +39,12 @@ jobs:
           --template-file bicep/log-analytics.bicep \
           --parameters location="UK South" \
                       logAnalyticsWorkspaceName="rrlogtest"
+
+    - name: Associate Log Analytics Workspace with Storage Account
+      run: |
+        az monitor diagnostic-settings create \
+          --resource "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rrblobtest/providers/Microsoft.Storage/storageAccounts/teststorage20241229" \
+          --name "storageAccountDiagnostics" \
+          --workspace "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rrblobtest/providers/Microsoft.OperationalInsights/workspaces/rrlogtest" \
+          --logs '[{"category": "StorageRead", "enabled": true},{"category": "StorageWrite", "enabled": true},{"category": "StorageDelete", "enabled": true}]' \
+          --metrics '[{"category": "AllMetrics", "enabled": true}]'
