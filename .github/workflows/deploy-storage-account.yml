@@ -1,4 +1,4 @@
-name: Deploy Azure Storage Account
+name: Deploy Azure Storage Account and Log Analytics Workspace
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       run: |
         az group create --name rrblobtest --location "UK South"
 
-    - name: Deploy Resources
+    - name: Deploy Storage Account
       run: |
         az deployment group create \
           --resource-group rrblobtest \
@@ -31,3 +31,11 @@ jobs:
                       storageAccountName="teststorage20241229" \
                       containerName="images" \
                       allowedIP="92.16.42.251"
+
+    - name: Deploy Log Analytics Workspace
+      run: |
+        az deployment group create \
+          --resource-group rrblobtest \
+          --template-file bicep/log-analytics.bicep \
+          --parameters location="UK South" \
+                      logAnalyticsWorkspaceName="rrlogtest"
