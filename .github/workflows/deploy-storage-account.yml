@@ -1,4 +1,4 @@
-name: Deploy Azure Storage Account and Associate Log Analytics Workspace
+name: Deploy Azure Storage Account and Configure Diagnostic Settings
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       run: |
         az group create --name rrblobtest --location "UK South"
 
-    - name: Deploy Storage Account and Log Analytics Workspace
+    - name: Deploy Storage Account
       run: |
         az deployment group create \
           --resource-group rrblobtest \
@@ -30,8 +30,14 @@ jobs:
           --parameters location="UK South" \
                       storageAccountName="teststorage20241229" \
                       containerName="images" \
-                      allowedIP="92.16.42.251" \
-                      logAnalyticsWorkspaceName="rrlogtest"
+                      allowedIP="92.16.42.251"
+
+    - name: Create Log Analytics Workspace
+      run: |
+        az monitor log-analytics workspace create \
+          --resource-group rrblobtest \
+          --workspace-name rrlogtest \
+          --location "UK South"
 
     - name: Associate Log Analytics Workspace with Storage Account
       run: |
