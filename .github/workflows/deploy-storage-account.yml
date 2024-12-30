@@ -1,4 +1,4 @@
-name: Deploy Storage Account with Diagnostic Settings
+name: Deploy Azure Resources
 
 on:
   push:
@@ -22,35 +22,21 @@ jobs:
       run: |
         az group create --name rrblobtest --location "UK South"
 
-    - name: Create Storage Account
+    - name: Deploy Storage Account
       run: |
-        az storage account create \
-          --name teststorage20241229 \
+        az deployment group create \
           --resource-group rrblobtest \
-          --location "UK South" \
-          --sku Standard_LRS \
-          --kind StorageV2
-
-    - name: Create Log Analytics Workspace
-      run: |
-        az monitor log-analytics workspace create \
-          --resource-group rrblobtest \
-          --workspace-name rrlogtest \
-          --location "UK South"
-
-    - name: Get Resource IDs
-      id: get_ids
-      run: |
-        STORAGE_ACCOUNT_ID=$(az storage account show --name teststorage20241229 --resource-group rrblobtest --query "id" -o tsv)
-        LOG_ANALYTICS_ID=$(az monitor log-analytics workspace show --name rrlogtest --resource-group rrblobtest --query "id" -o tsv)
-        echo "STORAGE_ACCOUNT_ID=${STORAGE_ACCOUNT_ID}" >> $GITHUB_ENV
-        echo "LOG_ANALYTICS_ID=${LOG_ANALYTICS_ID}" >> $GITHUB_ENV
+          --template-file bicep/storage-account.bicep \
+          --parameters location="UK South" \
+                      storageAccountName="teststorage20241229" \
+                      containerName="images" \
+                      allowedIP="92.16.42.251"
 
     - name: Associate Log Analytics Workspace
       run: |
         az monitor diagnostic-settings create \
           --name "storageAccountDiagnostics" \
-          --resource ${{ env.STORAGE_ACCOUNT_ID }} \
-          --logs '[{"category": "BlobRead", "enabled": true},{"category": "BlobWrite", "enabled": true},{"category": "BlobDelete", "enabled": true}]' \
+          --resource /subscriptions/929d7635-207a-4b22-8d24-34e2ae29092b/resourceGroups/rrblobtest/providers/Microsoft.Storage/storageAccounts/teststorage20241229 \
+          --logs '[{"category": "StorageRead", "enabled": true},{"category": "StorageWrite", "enabled": true},{"category": "StorageDelete", "enabled": true}]' \
           --metrics '[{"category": "Transaction", "enabled": true}]' \
-          --workspace ${{ env.LOG_ANALYTICS_ID }}
+          --workspace /subscriptions/929d7635-207a-4b22-8d24-34e2ae29092b/resourceGroups/rrblobtest/providers/Microsoft.OperationalInsights/workspaces/rrlogtest
