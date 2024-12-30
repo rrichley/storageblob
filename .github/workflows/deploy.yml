@@ -1,9 +1,15 @@
-name: Deploy Azure Storage Account
+name: Deploy Azure Resources
 
 on:
   push:
     branches:
       - main
+
+env:
+  AZURE_RESOURCE_GROUP: "rrblobtest"
+  AZURE_LOCATION: "UK West"
+  STORAGE_ACCOUNT_NAME: "test123434"
+  LOG_ANALYTICS_WORKSPACE_NAME: "rrlogtest"
 
 jobs:
   deploy:
@@ -18,17 +24,11 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Create Resource Group
-      run: |
-        az group create --name rrblobtest --location "UK West"
-
-    - name: Deploy Storage Account
+    - name: Deploy Bicep template
       run: |
         az deployment group create \
-          --resource-group rrblobtest \
-          --template-file bicep/storage-account.bicep \
-          --parameters location="UK West" \
-                      storageAccountName="test123434" \
-                      containerName="images" \
-                      allowedIP="92.16.42.251" \
-                      logAnalyticsWorkspaceName="rrlogtest"
+          --resource-group $AZURE_RESOURCE_GROUP \
+          --template-file bicep/main.bicep \
+          --parameters location="$AZURE_LOCATION" \
+                      storageAccountName="$STORAGE_ACCOUNT_NAME" \
+                      logAnalyticsWorkspaceName="$LOG_ANALYTICS_WORKSPACE_NAME"
