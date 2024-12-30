@@ -1,4 +1,4 @@
-name: Deploy Azure Resources
+name: Deploy Azure Storage Account
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       run: |
         az group create --name rrblobtest --location "UK South"
 
-    - name: Deploy Storage Account and Container
+    - name: Deploy Storage Account
       run: |
         az deployment group create \
           --resource-group rrblobtest \
