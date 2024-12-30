@@ -44,6 +44,7 @@ jobs:
         az monitor diagnostic-settings create \
           --name "storageAccountDiagnostics" \
           --resource "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rrblobtest/providers/Microsoft.Storage/storageAccounts/teststorage20241229" \
-          --workspace "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rrblobtest/providers/Microsoft.OperationalInsights/workspaces/rrlogtest" \
           --logs '[{"category": "StorageRead", "enabled": true},{"category": "StorageWrite", "enabled": true},{"category": "StorageDelete", "enabled": true}]' \
-          --metrics '[{"category": "AllMetrics", "enabled": true}]'
+          --metrics '[{"category": "AllMetrics", "enabled": true}]' \
+          --workspace "/subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/rrblobtest/providers/Microsoft.OperationalInsights/workspaces/rrlogtest"
+
