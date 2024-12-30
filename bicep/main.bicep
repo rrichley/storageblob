@@ -4,11 +4,6 @@ param containerName string
 param allowedIP string
 param logAnalyticsWorkspaceName string
 
-// Create Resource Group Scope
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-  name: resourceGroup().name
-}
-
 // Create Log Analytics Workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName
@@ -20,6 +15,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
     }
   }
 }
+
 // Create Storage Account
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
