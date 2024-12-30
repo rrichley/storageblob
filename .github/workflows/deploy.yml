@@ -1,4 +1,4 @@
-name: Deploy Azure Storage Account
+name: Deploy Azure Resources
 
 on:
   push:
@@ -20,15 +20,31 @@ jobs:
 
     - name: Create Resource Group
       run: |
-        az group create --name rrblobtest --location "UK West"
+        az group create --name rrblobtest --location "UK South"
 
     - name: Deploy Storage Account
       run: |
         az deployment group create \
           --resource-group rrblobtest \
           --template-file bicep/storage-account.bicep \
-          --parameters location="UK West" \
+          --parameters location="UK South" \
                       storageAccountName="test123434" \
                       containerName="images" \
-                      allowedIP="92.16.42.251" \
-                      logAnalyticsWorkspaceName="rrlogtest"
+                      allowedIP="92.16.42.251"
+
+    - name: Fetch Log Analytics Workspace ID
+      id: fetch_workspace_id
+      run: |
+        LOG_ANALYTICS_WORKSPACE_ID=$(az monitor log-analytics workspace show \
+          --resource-group <log-analytics-resource-group> \
+          --workspace-name rrlogtest \
+          --query id -o tsv)
+        echo "LOG_ANALYTICS_WORKSPACE_ID=${LOG_ANALYTICS_WORKSPACE_ID}" >> $GITHUB_ENV
+
+    - name: Deploy Log Analytics Integration
+      run: |
+        az deployment group create \
+          --resource-group rrblobtest \
+          --template-file bicep/log-analytics-integration.bicep \
+          --parameters storageAccountId="/subscriptions/<subscription-id>/resourceGroups/rrblobtest/providers/Microsoft.Storage/storageAccounts/test123434" \
+                      logAnalyticsWorkspaceId="$LOG_ANALYTICS_WORKSPACE_ID"
