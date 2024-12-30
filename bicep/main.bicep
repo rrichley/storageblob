@@ -1,13 +1,8 @@
 param location string = 'uksouth'
-param resourceGroupName string
 param storageAccountName string
 param containerName string
 param allowedIP string
 param logAnalyticsWorkspaceName string
-
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-  name: resourceGroupName
-}
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
