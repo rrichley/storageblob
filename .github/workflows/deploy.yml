@@ -1,4 +1,4 @@
-name: Deploy Azure Storage Account with Log Analytics Integration
+name: Deploy Azure Storage Account and Log Analytics Association
 
 on:
   push:
@@ -18,19 +18,15 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Ensure Resource Group Exists
+    - name: Create Resource Group
       run: |
-        if ! az group show --name rrblobtest &>/dev/null; then
-          az group create --name rrblobtest --location "UK West"
-        else
-          echo "Resource group rrblobtest already exists."
-        fi
+        az group create --name rrblobtest --location "UK West"
 
     - name: Deploy Storage Account and Log Analytics Association
       run: |
         az deployment group create \
           --resource-group rrblobtest \
-          --template-file bicep/main.bicep \
+          --template-file bicep/storage-account.bicep \
           --parameters location="UK West" \
                       storageAccountName="test123434" \
                       containerName="images" \
