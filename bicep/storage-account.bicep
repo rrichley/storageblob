@@ -1,10 +1,10 @@
 @description('The location for all resources.')
-param location string
+param location string = 'UK South'
 
 @description('The name of the storage account.')
 param storageAccountName string
 
-@description('The name of the container.')
+@description('The name of the container to create.')
 param containerName string
 
 @description('The IP address allowed to access the storage account.')
@@ -19,7 +19,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
   properties: {
     accessTier: 'Hot'
-    allowBlobPublicAccess: true // Enable public access for blob storage
+    allowBlobPublicAccess: true
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
