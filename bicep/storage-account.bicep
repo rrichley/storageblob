@@ -1,34 +1,88 @@
-name: Deploy Azure Storage Account
+@description('The location for all resources.')
+param location string
 
-on:
-  push:
-    branches:
-      - main
+@description('The name of the storage account.')
+param storageAccountName string
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+@description('The name of the container to create.')
+param containerName string
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+@description('The IP address allowed to access the storage account.')
+param allowedIP string
 
-    - name: Login to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+@description('The name of the Log Analytics workspace.')
+param logAnalyticsWorkspaceName string
 
-    - name: Create Resource Group
-      run: |
-        az group create --name rrblobtest --location "UK West"
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+    allowBlobPublicAccess: true
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      ipRules: [
+        {
+          action: 'Allow'
+          value: allowedIP
+        }
+      ]
+    }
+  }
+}
 
-    - name: Deploy Storage Account
-      run: |
-        az deployment group create \
-          --resource-group rrblobtest \
-          --template-file bicep/storage-account.bicep \
-          --parameters location="UK West" \
-                      storageAccountName="test123434" \
-                      containerName="images" \
-                      allowedIP="92.16.42.251" \
-                      logAnalyticsWorkspaceName="rrlogtest"
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  parent: blobService
+  name: containerName
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  name: logAnalyticsWorkspaceName
+}
+
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'storageDiagnostics'
+  scope: storageAccount
+  properties: {
+    logs: [
+      {
+        category: 'StorageRead'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+      {
+        category: 'StorageWrite'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+      {
+        category: 'StorageDelete'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+    ]
+    workspaceId: logAnalyticsWorkspace.id
+  }
+}
