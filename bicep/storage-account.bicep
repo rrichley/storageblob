@@ -10,9 +10,6 @@ param containerName string
 @description('The IP address allowed to access the storage account.')
 param allowedIP string
 
-@description('The name of the Log Analytics workspace.')
-param logAnalyticsWorkspaceName string
-
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
@@ -46,16 +43,5 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
   name: containerName
   properties: {
     publicAccess: 'Blob'
-  }
-}
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: logAnalyticsWorkspaceName
-  location: location
-  properties: {
-    sku: {
-      name: 'PerGB2018'
-    }
-    retentionInDays: 30
   }
 }
