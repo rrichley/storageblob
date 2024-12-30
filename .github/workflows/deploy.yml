@@ -1,4 +1,4 @@
-name: Deploy Azure Resources
+name: Deploy Azure Storage Account
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -17,12 +18,16 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Deploy Bicep File
+    - name: Create Resource Group
+      run: |
+        az group create --name rrblobtest --location "UK West"
+
+    - name: Deploy Storage Account
       run: |
         az deployment group create \
           --resource-group rrblobtest \
-          --template-file bicep/main.bicep \
-          --parameters location="UK South" \
+          --template-file bicep/storage-account.bicep \
+          --parameters location="UK West" \
                       storageAccountName="test123434" \
                       containerName="images" \
                       allowedIP="92.16.42.251" \
