@@ -1,67 +1,41 @@
-param location string
-param logAnalyticsWorkspaceName string
-param storageAccountName string
-param containerName string
-param allowedIP string
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: logAnalyticsWorkspaceName
-  location: location
-  properties: {}
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'rrblobtest'
+  location: 'UK South'
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: storageAccountName
-  location: location
+  name: 'test123434'
+  location: rg.location
   sku: {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
   properties: {
     networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
       ipRules: [
         {
-          action: 'Allow'
-          value: allowedIP
+          value: '92.16.42.251'
         }
       ]
-      defaultAction: 'Deny'
     }
   }
 }
 
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: storageAccount::default
-  name: containerName
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+  name: '${storageAccount.name}/default/images'
   properties: {
     publicAccess: 'None'
   }
 }
 
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'storage-diagnostics'
-  scope: storageAccount
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12-01' = {
+  name: 'rrlogtest'
+  location: rg.location
   properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'StorageRead'
-        enabled: true
-      }
-      {
-        category: 'StorageWrite'
-        enabled: true
-      }
-      {
-        category: 'StorageDelete'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'Transaction'
-        enabled: true
-      }
-    ]
+    sku: {
+      name: 'PerGB2018'
+    }
   }
 }
