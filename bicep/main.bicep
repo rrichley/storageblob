@@ -3,6 +3,13 @@ param storageAccountName string
 param containerName string
 param allowedIP string
 param logAnalyticsWorkspaceName string
+param resourceGroupName string
+
+// Create the Resource Group
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: resourceGroupName
+  location: location
+}
 
 // Create Log Analytics Workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
@@ -14,6 +21,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
       name: 'PerGB2018'
     }
   }
+  scope: resourceGroup
 }
 
 // Create Storage Account
@@ -37,6 +45,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       defaultAction: 'Deny'
     }
   }
+  scope: resourceGroup
 }
 
 // Create Blob Service and Container
