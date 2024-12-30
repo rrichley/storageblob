@@ -20,14 +20,13 @@ jobs:
 
     - name: Create Resource Group
       run: |
-        az group create --name rrblobtest --location "UK South"
+        az group create --name rrblobnew --location "UK South"
 
     - name: Deploy Storage Account
       run: |
         az deployment group create \
-          --resource-group rrblobtest \
+          --resource-group rrblobnew \
           --template-file bicep/storage-account.bicep \
-          --parameters location="UK South" \
-                      storageAccountName="test123434" \
-                      containerName="images" \
+          --parameters storageAccountName="teststorage5678" \
+                      containerName="pictures" \
                       allowedIP="92.16.42.251"
