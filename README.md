@@ -11,7 +11,8 @@ This repository contains resources for deploying:
 - A storage account.
 - A blob container with public access.
 - IP restrictions to secure access.
-- (Optional) Association with a Log Analytics workspace for monitoring.
+- A Log Analytics workspace for monitoring.
+- Diagnostic settings to associate the storage account with the Log Analytics workspace.
 
 ---
 
@@ -23,5 +24,6 @@ This repository contains resources for deploying:
 │   └── workflows
 │       └── deploy-storage-account.yml  # GitHub Actions workflow file
 ├── bicep
-│   └── storage-account.bicep           # Bicep template for storage account
+│   ├── storage-account.bicep           # Bicep template for storage account
+│   └── log-analytics.bicep             # Bicep template for Log Analytics workspace
 ├── README.md                           # Project documentation
