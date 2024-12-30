@@ -10,9 +10,6 @@ param containerName string
 @description('The IP address allowed to access the storage account.')
 param allowedIP string
 
-@description('The name of the Log Analytics workspace.')
-param logAnalyticsWorkspaceName string
-
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
@@ -28,8 +25,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       defaultAction: 'Deny'
       ipRules: [
         {
-          action: 'Allow'
           value: allowedIP
+          action: 'Allow'
         }
       ]
     }
@@ -46,43 +43,5 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
   name: containerName
   properties: {
     publicAccess: 'Blob'
-  }
-}
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
-  name: logAnalyticsWorkspaceName
-}
-
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'storageDiagnostics'
-  scope: storageAccount
-  properties: {
-    logs: [
-      {
-        category: 'StorageRead'
-        enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
-      }
-      {
-        category: 'StorageWrite'
-        enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
-      }
-      {
-        category: 'StorageDelete'
-        enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
-      }
-    ]
-    workspaceId: logAnalyticsWorkspace.id
   }
 }
