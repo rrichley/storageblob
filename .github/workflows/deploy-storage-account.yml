@@ -51,6 +51,6 @@ jobs:
         az monitor diagnostic-settings create \
           --name "storageAccountDiagnostics" \
           --resource ${{ env.STORAGE_ACCOUNT_ID }} \
-          --logs '[{"category": "StorageRead", "enabled": true},{"category": "StorageWrite", "enabled": true},{"category": "StorageDelete", "enabled": true}]' \
-          --metrics '[{"category": "AllMetrics", "enabled": true}]' \
+          --logs '[{"category": "BlobRead", "enabled": true},{"category": "BlobWrite", "enabled": true},{"category": "BlobDelete", "enabled": true}]' \
+          --metrics '[{"category": "Transaction", "enabled": true}]' \
           --workspace ${{ env.LOG_ANALYTICS_ID }}
