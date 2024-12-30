@@ -1,41 +1,61 @@
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rrblobtest'
-  location: 'UK South'
-}
+@description('The location for all resources.')
+param location string
+
+@description('The name of the storage account.')
+param storageAccountName string
+
+@description('The name of the container to create.')
+param containerName string
+
+@description('The IP address allowed to access the storage account.')
+param allowedIP string
+
+@description('The name of the Log Analytics workspace.')
+param logAnalyticsWorkspaceName string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: 'test123434'
-  location: rg.location
+  name: storageAccountName
+  location: location
   sku: {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
   properties: {
+    accessTier: 'Hot'
+    allowBlobPublicAccess: true // Enable blob public access
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
       ipRules: [
         {
-          value: '92.16.42.251'
+          value: allowedIP
+          action: 'Allow'
         }
       ]
     }
   }
 }
 
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: '${storageAccount.name}/default/images'
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  parent: blobService
+  name: containerName
   properties: {
-    publicAccess: 'None'
+    publicAccess: 'Blob' // Allow public access at container level
   }
 }
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12-01' = {
-  name: 'rrlogtest'
-  location: rg.location
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: logAnalyticsWorkspaceName
+  location: location
   properties: {
     sku: {
       name: 'PerGB2018'
     }
+    retentionInDays: 30
   }
 }
