@@ -2,6 +2,10 @@
 
 This repository demonstrates how to automate the deployment of Azure resources using GitHub Actions and Bicep templates. The workflow provisions a resource group, a storage account, and a blob container with restricted IP access, and associates a Log Analytics workspace for monitoring.
 
+## Architecture Diagram
+
+![Architecture Diagram](architecture-diagram.jpg)
+
 ## Workflow Overview
 The GitHub Actions workflow is triggered on a `push` to the `main` branch and performs the following steps:
 
